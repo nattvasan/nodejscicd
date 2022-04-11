@@ -6,7 +6,7 @@ Variables needed:
   - USERNAME -- Username of the docker registry
   - CI_REGISTRY -- Docker registry URL
   - REGISTRY_PASSWORD -- Docker registry password
-  - 
+
 We have four stages 
   - build
   - test
