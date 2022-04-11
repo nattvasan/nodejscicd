@@ -1,0 +1,49 @@
+image: node:latest
+
+stages:
+  - build
+  - test
+  - scan
+  - deploy
+
+build_nodejs:
+  stage: build
+  script: 
+    - npm init
+    - npm run type:check
+  tags: 
+    - nodejs_runner 
+  only:
+    - master   
+  artifacts:
+    paths:
+      - node_modules 
+
+test_nodejs:
+  stage: test
+  needs:
+    - build_nodejs
+  script: npm run test   
+  tags: 
+    - nodejs_runner  
+  only:
+    - master     
+
+
+scan_nodejs:
+  stage: scan
+  image: sonarsource/sonar-scanner-cli:latest
+  script:
+    - 'sonar-scanner -Dsonar.host.url=https://$SONAR_URL -Dsonar.login=$SONAR_KEY'
+  tags:
+    - nodejs_runner 
+  only:
+    - master
+  cache:
+    paths:
+    - /root/.sonar/cache
+
+include:
+  - local: 'scripts/.build-image.gitlab-ci.yml'
+  - local: 'scripts/.kube-deploy.gitlab-ci.yml'
+  

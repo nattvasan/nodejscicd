@@ -1,0 +1,22 @@
+DockerBuild_image:
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_DRIVER: overlay2
+    CI_REGISTRY: $CI_REGISTRY
+  tags:
+    - nodejs_runner
+  only:
+    - master
+  when: manual
+  dependencies:
+    - build_nodejs
+  before_script:
+    - docker login $CI_REGISTRY -u $USERNAME -p $REGISTRY_PASSWORD
+  script:
+    - cd scripts/
+    - docker build -t $CI_REGISTRY/$USERNAME/nodejs:$CI_COMMIT_SHORT_SHA .
+    - docker push $CI_REGISTRY/$USERNAME/nodejs:$CI_COMMIT_SHORT_SHA

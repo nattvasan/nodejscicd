@@ -1,0 +1,20 @@
+stage: deploy
+  # Official docker image.
+  image: ubuntu-kubectl:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_DRIVER: overlay2
+    GIT_STRATEGY: none
+  dependencies: []
+  tags:
+    - nodejs_runner
+  only:
+    - master 
+  when: manual
+  before_script:
+    - kubectl cluster-info
+    - kubectl config --kubeconfig=scripts/config-dev use-context dev
+  script:
+    - cat scripts/service-deployment.yaml | sed "s/{{CI_COMMIT_SHORT_SHA}}/$CI_COMMIT_SHORT_SHA/g" | kubectl -n namespace apply -f -
